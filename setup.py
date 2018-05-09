@@ -5,7 +5,7 @@ def readme():
         return f.read()
 
 setup(name='pygempick', 
-      version='1.0.1', 
+      version='1.0.3', 
       description='Open Source Batch Gold Particle Picking & Procesing for Immunogold Diagnostics',
       long_description = readme(),
       classifiers=[
