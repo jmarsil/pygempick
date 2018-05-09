@@ -17,7 +17,7 @@ This module has three main dependencies that are needed before usage:
 
 
 The project will be updated in the upcoming weeks with tutorials on how 
-to use the functions given within pygempick. This algoritm was built to
+to use the functions given within pygempick. This module was built to
 help researchers diagnose pateints with rare protein misfolding diseases 
 like ATTR, AD, FTD and ALS using novel Immunogold diagnostic techniques. 
 
