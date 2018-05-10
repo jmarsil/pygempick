@@ -13,14 +13,18 @@ import pandas as pd
 import scipy.optimize as opt
 import matplotlib.pyplot as plt
 
+#import pygempick module(s)
 import pygempick.core as core
+import pygempick.spatialstats as spa
     
 def draw(n, test_number, noise, images):
     
     '''
-    n = particle number of real data set to make fake distribution... always same
-    
-    test_number: 1 for only circles , 2 for both circles and ellipses...
+    n = particle number of real data set to make fake distribution, test_number:
+    1 for only circles , 2 for both circles and ellipses, if noise == 'yes' 
+    will add random gaussian noise to mu and sigma of distribution for gray 
+    image intensities, images is the number of images you would like to produce
+    in the modeled set of micrographs.
     '''
     
     row = 776  #image height
@@ -127,11 +131,14 @@ def draw(n, test_number, noise, images):
 def imgclass(inv_img):
     
     '''
-    # uses a compressed grayscale image from cvt_color(RGB2GRAY)
-    # returns the intensity histogram and related bins position w/ im_class
-    # can optimize this function to a greater extent.
+    Uses a compressed grayscale image from cvt_color(RGB2GRAY) and returns 
+    the intensity histogram and related bins position w/ im_class. 
     
-    gray_img = cv2.cvtColor(orig_img, cv2.COLOR_RGB2GRAY)
+    Can optimize this function to a greater extent.
+    
+    Recieves following input from:
+        
+        gray_img = cv2.cvtColor(orig_img, cv2.COLOR_RGB2GRAY)
     
     '''
     ##can edit to make a histogram from of the pixle image intensities of the image...
@@ -244,8 +251,9 @@ def fitpcf(data):
     **Note: pcf-dr5-error.csv is a file outputted from keypoints2pcf()
     look to that function to see how that output is formatted. 
     
-    Output : One graph, with fitted curve for V30M data vs CD1 Data  
-    Equation fitted to probability distribution for Complete Spatial Randomness 
+    Output : built to produce one graph, with fitted curve for positive control(s).  
+    Equation fitted to probability distribution for Complete Spatial Randomness of 
+    the distribution of IGEM particles across EM micrographs.
     
     '''
    
@@ -264,8 +272,8 @@ def fitpcf(data):
     y1 = data[3].values
     dy1 = data[4].values
 
-    popt1, pcov1 = opt.curve_fit(core.pcf , x, y,  p0 = pcfp1)
-    popt2, pcov2 = opt.curve_fit(core.pcf , x1, y1,  p0 = pcfp2)
+    popt1, pcov1 = opt.curve_fit(spa.pcf , x, y,  p0 = pcfp1)
+    popt2, pcov2 = opt.curve_fit(spa.pcf , x1, y1,  p0 = pcfp2)
 
     popt1 = np.around(popt1, decimals=2)
     popt2 = np.around(popt2, decimals=2)
@@ -278,13 +286,13 @@ def fitpcf(data):
     plt.title('Probability of Gold Particle Colocolization on TTR micrographs' )
     #CSR of CD1 Micgrgrap set 
     plt.plot(x,y,'xr') #keypoints of CD1 micrographs
-    plt.plot(np.arange(0,110,1), core.pcf(np.arange(0,110,1), popt1[0], popt1[1], popt1[2]),
+    plt.plot(np.arange(0,110,1), spa.pcf(np.arange(0,110,1), popt1[0], popt1[1], popt1[2]),
                        'r-', label='CD1 CSR, N = {} +/- {}, L = {} +/- {}'.format(popt1[0],
                                                  np.around(np.sqrt(pcov1[0,0]), decimals=3),
                                                  popt1[1], np.around(np.sqrt(pcov1[1,1]), decimals=3))) 
     plt.errorbar(x, y, yerr=dy, fmt='xr')
     plt.plot(x1,y1, 'og') ##keypoints of V30M micrographs
-    plt.plot(np.arange(0,110,1), core.pcf(np.arange(0,110,1), popt2[0], popt2[1], popt2[2]),
+    plt.plot(np.arange(0,110,1), spa.pcf(np.arange(0,110,1), popt2[0], popt2[1], popt2[2]),
                        'g-', label='V30M CSR, N = {} +/- {}, L = {} +/- {}'.format(popt2[0], 
                                                   np.around(np.sqrt(pcov2[0,0]), decimals=3),
                                                   popt2[1], np.around(np.sqrt(pcov2[1,1]), decimals=3))) 

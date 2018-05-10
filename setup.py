@@ -5,7 +5,7 @@ def readme():
         return f.read()
 
 setup(name='pygempick', 
-      version='1.0.3', 
+      version='1.1', 
       description='Open Source Batch Gold Particle Picking & Procesing for Immunogold Diagnostics',
       long_description = readme(),
       classifiers=[
@@ -30,7 +30,7 @@ setup(name='pygempick',
       author_email='joseph.marsilla@mail.utoronto.ca',
       license='MIT',
       packages=['pygempick'],
-      install_requires=['numpy','pandas'],
+      install_requires=['numpy','pandas', 'matplotlib'],
       include_package_data=True,
       zip_safe=False,
       test_suite='nose.collector',

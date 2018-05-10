@@ -3,17 +3,16 @@ Created on Wed May  9 15:06:15 2018
 
 @author: joseph
 """
-
-import pandas as pd
 import numpy as np
 import cv2
-import scipy.misc as misc
 
 def compress(orig_img):
     '''
-    #Takes a large image and compresses it 3.3 times in our case 
-    #images are outputed originally as large 9MB images...
-    #(That much reolution is unecessary)
+    Takes a large image and compresses it 3.3 times in our case 
+    images are outputed originally as large 9MB images...
+    
+    (That much reolution is unecessary when determining positioning of gold 
+    particles. )
     '''
     
     r = 1018/orig_img.shape[1] ##correct aspect ratio of image to prevent distortion
@@ -21,11 +20,19 @@ def compress(orig_img):
     
     resized_img = cv2.resize(orig_img, dim, interpolation = cv2.INTER_AREA)
     
-    return resized_img
+    gray_img = cv2.cvtColor(resized_img, cv2.COLOR_RGB2GRAY)
+    
+    return gray_img
 
 
 ##define the filter of the scaled 3x3 laplacian kernel...(High Contract LPF)
 def igem_filt(p,image, noise):
+    
+    '''
+    New High Contrast Laplace Filter. Takes odd scaling parameter p > 5, regular
+    compressed image, if noise == 'yes' will add median blur after filter applied.
+    
+    '''
     
     gray_img = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
     
@@ -41,6 +48,11 @@ def igem_filt(p,image, noise):
 
 ##define difference of Gaussian Filter as used w/ SIFT method...(Lowe,2004)
 def dog_filt(tau,image, noise):
+    
+    '''
+    Difference of Gaussian Filter. Takes odd scaling parameter tau, regular
+    compressed image, if noise == 'yes' will add median blur after filter applied.
+    ''' 
     
     gray_img = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
     
@@ -62,6 +74,12 @@ def dog_filt(tau,image, noise):
 
 
 def bin_filt(p, image):
+    
+    '''
+    Smart Binary Filtering. Uses the average gray pixel intensity value to determing 
+    the starting threshold position. Takes odd scaling parameter p, 
+    image = regular compressed image
+    ''' 
     
     gray_img = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
     ##If Possible #Histogram Equilization of blurred image
@@ -86,8 +104,17 @@ def bin_filt(p, image):
     
 def pick(image, minAREA, minCIRC, minCONV, minINER):
     '''
-    #detects immunogold particles on filtered binary image. 
-    #have to optimize for each set separately...
+    image = resulting binary image from filter, minArea = lowest area in pixels 
+    of gold particle (20 px**2), lowest circularity of gold particle [.78 is square], 
+    minConv = lowest convextivity parameter (is there a space between detected 
+    particle - optimization with this parameter can help us differentiate between
+    overlapping particles, minINER = minimum inertial ratio (filters particle
+    based on their eliptical properties). 
+    
+    Detects immunogold particles on filtered binary image by optimizing picking
+    across 4 main paramaters using OpenCv's simple blob detector. 
+    
+    Have to optimize for each set separately on a per class or per trial basis. 
     
     '''
     # Set up the SimpleBlobdetector with default parameters.
@@ -123,238 +150,101 @@ def pick(image, minAREA, minCIRC, minCONV, minINER):
     
     return keypoints1
 
-
-def gamma(a,b,r):
-    #function taken from work by Philemonenko et al 2000
-    #used as a window covariogram to fink Ripley's K function under w/ boundary
-    A = a*b
-    return A - (2/np.pi)*(a+b)*r + (1/np.pi)*r**2
-
-
-def bin2csv(images):
+def snapshots(folder, keypoints, gray_img, i):
     
-    #input is a set of images from folder using glob.glob function...
-    #originally from A_correlation_test.py
-
-    i = 0  #image counter
-    j = 0
-    #------------------------
-       
-    data = pd.DataFrame()
-    #Change picking parameters per test set...
-    #p = np.int(input('Center anchor of filter: '))
-    minArea = np.int(input('Min Area to Detect: '))
-    minCirc = np.float(input('Min Circularity: '))
-    minCon = np.float(input('Min Concavity: '))
-    minInert = np.float(input('Min Inertial Ratio: '))
+    '''
+    folder = folder location where snapshots will be saved, keypoints = output 
+    from pick() , gray_img = compressed grayscale image, i = image number.
     
-    for image in images:
+    Takes an compressed grayscale image and uses the detected keypoints as a marker
+    to take a snapshot within a 100px radius of that gold particle's position. 
+    
+    '''
+    
+    if len(keypoints) > 0:
+
+        #append x and y coordinates of keypoint center pixels
+        ni = len(keypoints) #number of particles in image
+        x = np.zeros(ni)
+        y = np.zeros(ni)
         
-        orig_img = cv2.imread(image) ##reads specific test file
-        gray_img = cv2.cvtColor(orig_img, cv2.COLOR_RGB2GRAY)
-        #output = ef.IGEM_filter(p,orig_img, 'no') ##filters image
-        keypoints = pick(gray_img, minArea, minCirc, minCon , minInert) ##picks the keypoints
-                
-        if len(keypoints) > 0:
-            #append x and y coordinates of keypoint center pixels
-            n = len(keypoints) #number of particles in image
-            x = np.zeros(n)
-            y = np.zeros(n)
-        
-                
         k = 0
-                
+        
         for keypoint in keypoints:
             ## save the x and y coordinates to a new array...
-                    
+            
             x[k] = keypoint.pt[0]
             y[k] = keypoint.pt[1]
-                    
+            
             k+=1
-                
-            df = pd.DataFrame({'x{}'.format(i): x, 'y{}'.format(i) : y})
-            data = pd.concat([data,df], ignore_index=True, axis=1)
-                
-        j += k   
-        i +=1
         
-    # =============================================================================
-    
-    ## can use two different plots K at every r for each image on a scatter...
-    print('Particles Detected in set : {}'.format(j))
-    
-    file = input("Name your file")
-    
-    data.to_csv('{}'.format(file),index=False)
-    
-    #returns total number of particles detected per binary image in set
-    return j
-
-def bin2df(images):
-    
-    #input is a set of images from folder using glob.glob function...
-    #originally from A_correlation_test.py
-    
-    i = 0  #image counter
-    j = 0 #total particles
-    #------------------------
-       
-    data = pd.DataFrame()
-    #Change picking parameters per test set...
-    #p = np.int(input('Center anchor of filter: '))
-    minArea = np.int(input('Min Area to Detect: '))
-    minCirc = np.float(input('Min Circularity: '))
-    minCon = np.float(input('Min Concavity: '))
-    minInert = np.float(input('Min Inertial Ratio: '))
-    
-    for image in images:
+        j = 0 #index counter
+        count = 0
         
-        orig_img = cv2.imread(image) ##reads specific test file
-        gray_img = cv2.cvtColor(orig_img, cv2.COLOR_RGB2GRAY)
-        #output = ef.IGEM_filter(p,orig_img, 'no') ##filters image
-        keypoints = pick(gray_img, minArea, minCirc, minCon , minInert) ##picks the keypoints
+        for points in x:
+            
+            xs = x[j]
+            ys = y[j]
+            k = int(xs) #sets the center point x value reference
+            h = int(ys) #sets the center point y value reference
+            
+            ind = []
+            
+            for s in range(len(x)):
                 
-        if len(keypoints) > 0:
-            #append x and y coordinates of keypoint center pixels
-            n = len(keypoints) #number of particles in image
-            x = np.zeros(n)
-            y = np.zeros(n)
-        
+                rad = np.sqrt((k-int(x[s]))**2 + (h-int(y[s]))**2)
                 
-        k = 0 #particle counter
                 
-        for keypoint in keypoints:
-            ## save the x and y coordinates to a new array...
+                if rad < 50: 
                     
-            x[k] = keypoint.pt[0]
-            y[k] = keypoint.pt[1]
-                    
-            k+=1
+                    ind.append(s)
             
-             
+            ## will delete the pair of points that had a radius less than the 
+            ## snapshot that was taken...
+            x = np.delete(x, ind)
+            y = np.delete(y, ind)
             
-            df = pd.DataFrame({'x{}'.format(i): x, 'y{}'.format(i) : y})
-            data = pd.concat([data,df], ignore_index=True, axis=1)
-        
-        j += k
+            ##fix boundary conditions...
             
-        i+=1
-
-    return data, j #returns data as df and total particles accounted...
-
-def csv2pcf(data, dr):
-    
-    N = int(input('How Many Processed Images in this set?'))
-    ni = int(input('How many particles were detected?')) #nuber of particles counted in test set
-    
-    ## takes tata from csv produced by bin2csv() and 
-    ## outputs non-normalized k and pcf (pair-correlation) spatially invairent 
-    ## time series for set of images...
-    ## analyzed by bin2csv... taken from A_correlation.py
-    
-    data1 = pd.read_csv(data, header=None, skiprows=1)
-    data = pd.DataFrame(data1)
-    
-    a = 776 ## number of y pixels in image (height)
-    b = 1018 ##number of x pixels in image (width)
-    
-    #explain why this function is required for statistical detection of immunogold clusters in the data...
-    
-    l = (1/N)*ni #average density of particles lables across this test set of images
-    dni = 50*ni/1000. #false negatives missed by picker per 1000
-    
-    #correct the boundary effect of image by using the geometric covariogram of the
-    # window - defined in Ripley 1988 -- this is given by the gamma function in A_correlation_test
-    
-    k = []
-    dk = []
-    pcf = []
-    dpcf = []
-    
-    for r in range(0,100,dr): ##analyze the clustering in a given region between two circles. 
-        
-        kc = 0
-        ki = 0
-        
-        for p in range(0,len(data),2):
+            refxmin = k - 50
+            refxmax = k + 50
+            refymin = h - 50
+            refymax = h + 50
             
-            #x,y coordinates of detected immunogold keypoints occur in set of twos in the loaded csv file
-            x = np.array(data[p][~np.isnan(data[p])])
-            y = np.array(data[p+1][~np.isnan(data[p+1])])
+            if refxmin < 0:
+                refxmin = 0
             
-            if len(x) > 0:
+            if refymin < 0:
+                refymin = 0
+            
+            if refxmax > np.shape(gray_img)[1]:
+                refxmax = np.shape(gray_img)[1]
+            
+            if refymax > np.shape(gray_img)[0]:
+                refymax = np.shape(gray_img)[0]
+            
+            
+            ##take a snapshot of the aggregates w/in a 50px radius...
+            a = gray_img[refymin:refymax,refxmin:refxmax]
+            
+            ##snapshot counter...
+            count+=1
+            
+            #write snapshot to snapshot folder...
+            cv2.imwrite('{}/im_{}_snap_{}.jpg'.format(folder, i,count), a)
+            
+            if j in ind:
+                j = 0
                 
-                for i in range(len(x)-1): ##ensure that there are no duplicates while comparing all keypoints
+            else:
+                j+=1
+            
+            if len(x) == 0:
                 
-                    for j in range(i+1, len(x)):
-                            
-                        rad = np.sqrt((x[i]-x[j])**2 + (y[i] - y[j])**2)
-                            
-                        if r < rad <= r+dr: #if radius is less than this area b/w circles
-                                
-                            kc+= 1/gamma(a,b,rad) #classical K function
-                            ki+= 1/(rad*gamma(a,b, rad)) #pair correlation function
-                        
-                        else:
-                            kc+=0   
-                            ki+=0
-                            
-                print(p)
-                
-        a = kc*(1/(N*l))
-        da = a*(dni/ni)
-        b = ki*(1/(N*l*2*np.pi))
-        db = b*(dni/ni)
-       
-        k.append(a) #classical K function
-        dk.append(da)
-        pcf.append(b)
-        dpcf.append(db)
-        
-        print(k,r) 
+                break
     
-    return k, pcf , dk, dpcf
-
-def keypoints2pcf(data_set, dr):
+    else:
+        
+        count = 0
     
-    '''
-    Input folder with CSV files of keypoints for different tests
-    Need to know Image number and average particles detected in each set
-    
-    data_set = glob.glob('/home/joseph/Documents/PHY479/Data/anto/*.csv')
-    
-    output: pcf-dr{}-error.csv - columns dr (sampling radius), pcf 
-    (pair correlation coefficient), dpcf (propogated uncertainty in pcf)
-    
-    '''
-
-    save = pd.DataFrame()
-    
-    for data in data_set:
-        
-        print(data)
-        
-        k, pcf, dk, dpcf = csv2pcf(data, dr)
-        
-        #plot the Classical K function 
-        #Input name of specific data set recorded...
-        
-        name = input('Test set name:')      
-        
-        npcf = np.array(pcf)/sum(pcf)
-        
-        sumd = np.sqrt(sum(np.array(dpcf)**2))
-        
-        dnpcf = npcf*np.sqrt((np.array(dpcf)/pcf)**2 + (sumd/sum(pcf))**2)
-        
-        df = pd.DataFrame({'dr-{}'.format(name): np.linspace(1,101, len(pcf)), 'PCF-{}'.format(name): npcf, 'dpcf-{}'.format(name): dnpcf})
-        
-        save = pd.concat([save,df], ignore_index=False, axis=1)
-        
-        print(npcf,dnpcf)
-    
-    save.to_csv('pcf-dr{}-error.csv'.format(dr),index=False)
-
-def pcf(r, N, p0, p1):
-    
-    return 1/misc.factorial(p1)*(p0**N)*(r**(p1))*np.exp(-p0*r)
+    return count

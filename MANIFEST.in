@@ -1,1 +1,3 @@
 include README.rst
+include testing/*.py
+include sepdocs/*.py
