@@ -2,7 +2,7 @@
 
 ### This is the official installation guide for the PyGemPick module 
 
-PyGemPick is the cummulation of [Joseph Marsilla's]@jmarsil research project 
+PyGemPick is the cummulation of [Joseph Marsilla's](https://github.com/jmarsil) research project 
 under Dr. Avi Chakrabartty. This module contains functions that enable 
 filtering, detection, and modeling of immunogold particles on TEM micrographs. 
 
