@@ -1,5 +1,4 @@
-# pygempick
-#### Open Source Batch Gold Particle Picking &amp; Procesing for Immunogold Diagnostics
+# pygempick: Open Source Batch Gold Particle Picking &amp; Procesing for Immunogold Diagnostics
 
 ### This is the official installation guide for the PyGemPick module 
 
@@ -11,7 +10,7 @@ The main project goal was to greate an open source batch gold particle picking
 module built in python that could detect gold particles regardless of the amount
 of counterstaining present in the IGEM (Immunogold Electron Microscopy) micrograph. 
 
-This module has three main dependencies that are needed before usage
+#### This module has three main dependencies that are needed before usage
 
 	1. [OpenCV (cv2)](https://opencv.org/) 
 	2. [Pandas (pd)](https://pandas.pydata.org/)
@@ -96,7 +95,7 @@ For more information visit the github!
     _**Note:**_ TEM migrograph filtering using simple binary thresholding was first
     completed in 2003 with one of the first gold particle picking algorithms [GoldFinder](https://www.sciencedirect.com/science/article/pii/S104784770200624X).
 
-* _**New: key_filt(keypoints1, keypoints2) **_
+* _**New: key_filt(keypoints1, keypoints2)**_
     
    * Allows you to scandetected keypoints and eliminate duplicates! Allows you 
     to detect partciles with more than one filter. Returns updated keypoints
@@ -110,7 +109,7 @@ For more information visit the github!
       across 4 main paramaters using OpenCv's simple blob detector.
     * Have to optimize picking for each set separately on a per class or per trial basis. 
     
-    #####Gold Particle Picking Parameters
+    ##### Gold Particle Picking Parameters
     
         1. minArea = lowest area in pixels of a detected gold particle (20 px**2)
         2. minCirc = lowest circularity value of a detected gold particle [.78 is square]
