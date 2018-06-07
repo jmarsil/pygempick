@@ -1,4 +1,4 @@
-# pygempick: Open Source Batch Gold Particle Picking &amp; Procesing for Immunogold Diagnostics
+# pyGemPick: Open Source Gold Particle Picker for Immunogold Diagnostics
 
 ### This is the official installation guide for the PyGemPick module 
 
@@ -10,7 +10,7 @@ The main project goal was to greate an open source batch gold particle picking
 module built in python that could detect gold particles regardless of the amount
 of counterstaining present in the IGEM (Immunogold Electron Microscopy) micrograph. 
 
-#### This module has three main dependencies that are needed before usage
+#### pyGemPick has three main dependencies that are needed before usage
 
 	1. [OpenCV (cv2)](https://opencv.org/) 
 	2. [Pandas (pd)](https://pandas.pydata.org/)
@@ -51,7 +51,7 @@ separation & efficiency tests to test the algorithm's fairness.
 For more information visit the github!
 
 
-##Functions:
+## Functions:
 
 * __*py.compress(orig-img)*__
     
