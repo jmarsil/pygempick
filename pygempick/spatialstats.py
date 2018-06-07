@@ -38,6 +38,36 @@ def pcf(r, N, p0, p1):
     
     return 1/misc.factorial(p1)*(p0**N)*(r**(p1))*np.exp(-p0*r)
 
+def record_kp(i, keypoints, data):
+    '''
+    i is the image number counter
+    
+    keypoints is the list of keypoints of Gold particles on image detected by Simple Blob detector. 
+    
+    data is an empty pandas dataframe. 
+    
+    '''
+    
+    if len(keypoints) > 0:
+            #append x and y coordinates of keypoint center pixels
+            n = len(keypoints) #number of particles in image
+            x = np.zeros(n)
+            y = np.zeros(n)
+        
+    k = 0 #k is the keypoint counter 
+        
+    for keypoint in keypoints:
+    ## save the x and y coordinates to a new array...
+    
+        x[k] = keypoint.pt[0]
+        y[k] = keypoint.pt[1]
+                        
+        k+=1
+                    
+        df = pd.DataFrame({'x{}'.format(i): x, 'y{}'.format(i) : y})
+        data = pd.concat([data,df], ignore_index=True, axis=1)
+    
+    return data, k
 
 def bin2csv(images):
     
@@ -66,26 +96,8 @@ def bin2csv(images):
         gray_img = cv2.cvtColor(orig_img, cv2.COLOR_RGB2GRAY)
         #output = ef.IGEM_filter(p,orig_img, 'no') ##filters image
         keypoints = core.pick(gray_img, minArea, minCirc, minCon , minInert) ##picks the keypoints
-                
-        if len(keypoints) > 0:
-            #append x and y coordinates of keypoint center pixels
-            n = len(keypoints) #number of particles in image
-            x = np.zeros(n)
-            y = np.zeros(n)
         
-                
-        k = 0
-                
-        for keypoint in keypoints:
-            ## save the x and y coordinates to a new array...
-                    
-            x[k] = keypoint.pt[0]
-            y[k] = keypoint.pt[1]
-                    
-            k+=1
-                
-            df = pd.DataFrame({'x{}'.format(i): x, 'y{}'.format(i) : y})
-            data = pd.concat([data,df], ignore_index=True, axis=1)
+        data, k = record_kp(i,keypoints,data)
                 
         j += k   
         i +=1

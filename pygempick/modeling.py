@@ -20,11 +20,15 @@ import pygempick.spatialstats as spa
 def draw(n, test_number, noise, images):
     
     '''
-    n = particle number of real data set to make fake distribution, test_number:
-    1 for only circles , 2 for both circles and ellipses, if noise == 'yes' 
-    will add random gaussian noise to mu and sigma of distribution for gray 
-    image intensities, images is the number of images you would like to produce
-    in the modeled set of micrographs.
+    function to draws test micrograph sets that will be used in subsequent 
+    efficiency or separation tests. 
+    
+    1. Test number 1 is draw only circles, 2 is draw both circles and ellipses. 
+    2. Noise if == 'yes' then, randomly distibuted gaussian noise will be drawn 
+        according to mu1, sig1. 
+    3. images are the number of images in the set - used with n which is number of 
+       particles detected in the actual set to calulate the particle density of model 
+       set.
     '''
     
     row = 776  #image height
@@ -207,6 +211,7 @@ def septest(p,image):
     detected_bin = np.zeros(len(p))
     detected_lap = np.zeros(len(p))
     detected_dog = np.zeros(len(p))
+    detected_log = np.zeros(len(p))
     
     #the background conditions of various image sets will varry - 
     #go back and plot 
@@ -214,12 +219,14 @@ def septest(p,image):
         
         #same scaling factor as used by SIFT on the simple scale
         output_bin, _ = core.bin_filt(p[i], image)
-        output_lap = core.igem_filt(p[i],image, 'no')
-        output_dog = core.dog_filt(p[i],image, 'no') 
+        output_lap = core.hclap_filt(p[i],image, 'no')
+        output_dog = core.dog_filt(p[i],image) 
+        output_log = core.hlog_filt(p[i], image, 'no')
         
-        keypoints_bin = core.pick(output_bin, 20, .83, .73, .73)
-        keypoints_lap = core.pick(output_lap, 20, .83, .73 , .73)
-        keypoints_dog = core.pick(output_dog, 20, .83, .73 , .73)
+        keypoints_bin = core.pick(output_bin, 31, .83, .61 , .61, 0)
+        keypoints_lap = core.pick(output_lap, 31, .83, .61 , .61, 0)
+        keypoints_dog = core.pick(output_dog, 31, .83, .61 , .61, 0)
+        keypoints_log = core.pick(output_log, 31, .83, .61 , .61, 0)
         
         if len(keypoints_lap) > 0:
             detected_lap[i] = len(keypoints_lap)
@@ -236,10 +243,60 @@ def septest(p,image):
             detected_bin[i] = len(keypoints_bin)
         else: 
             detected_bin[i] = 0
+            
+        if len(keypoints_log)>0:   
+            detected_log[i] = len(keypoints_log)
+        else: 
+            detected_log[i] = 0
 
     
     #returns an array of the number of particles detected per filtering method...
-    return detected_bin, detected_lap, detected_dog 
+    #took out detected_dog for a more in depth test...
+    return detected_bin, detected_lap, detected_dog, detected_log 
+
+def septest2(p, image, hlogkey):
+    
+    '''
+    let p be a range of integers ranging from [1, x], for the publication x
+    is set to 31
+    
+    let image be a grayscale image produced after original image compression and 
+    conversion to grayscale using OpenCv's function
+    
+    hlogkey the keypoints of detected image fitered with HLOG filter - this ensures
+    faster particle detection since we aren't running the same filtering step more 
+    than once!
+    
+    '''
+    
+    count = np.zeros(len(p))
+    duplicates = np.zeros(len(p))
+    keypoints2 = hlogkey
+    
+    for i in range(len(p)): 
+            
+        output1 = core.hclap_filt(p[i], image, 'no')
+
+        keypoints1 = core.pick(output1, 31, .83, .5, .5, 0) 
+
+        keypoints1, dup = core.key_filt(keypoints1, keypoints2)
+            
+        if len(keypoints1) != 0 and len(keypoints2) ==0:
+            count[i] = len(keypoints1)
+            
+        elif len(keypoints1) != 0 and len(keypoints2) !=0:
+            count[i] = len(keypoints1) + len(keypoints2)
+            
+        elif len(keypoints1) == 0 and len(keypoints2) !=0:
+            count[i] = len(keypoints2)
+                
+        else:
+            count[i] = 0
+            
+        duplicates[i] = dup
+
+    
+    return count, duplicates
 
 def fitpcf(data):
     

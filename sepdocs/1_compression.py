@@ -7,7 +7,7 @@ import glob
 import pygempick.core as py
 
 
-images = glob.glob('/media/joseph/Joe\'s USB/ALL - CD1/CD1-H14G/CD1_h14G8_1in200_April212017/*.tif')
+images = glob.glob('/media/joseph/Joe\'s USB/Prot-Tech/*.tif')
 histx_max =[] ##contains list of maximum peak of histogram of gray intensities
 img_thresholds = []
 blob_number = []
@@ -24,7 +24,7 @@ for image in images:
     
     gray_img = py.compress(orig_img)
     
-    cv2.imwrite('/media/joseph/Joe\'s USB/ALL - CD1/CD1-H14G/Compressed/cd1_h14g8_{}.jpg'.format(i), gray_img)
+    cv2.imwrite('/media/joseph/Joe\'s USB/Prot-Tech/COMP/nat_samp_{}.jpg'.format(i), gray_img)
     i += 1
     
 print('Compression Complete')
