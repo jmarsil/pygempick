@@ -8,14 +8,16 @@ Created on Wed May  9 15:06:15 2018
 import numpy as np
 import cv2
 
-def compress(orig_img):
+def compress(image):
     '''
-    Takes a large image and compresses it 3.3 times in our case 
-    images are outputed originally as large 9MB images...
+    * Takes a image file location, reads the image and 
+      compresses it 3.3 times in our case. 
+    * Images are outputed originally as large 9MB images...
     
     (That much reolution is unecessary when determining positioning of gold 
     particles. )
     '''
+    orig_img = cv2.imread(image) ##reads specific test file image
     
     r = 1018/orig_img.shape[1] ##correct aspect ratio of image to prevent distortion
     dim = (1018, int(orig_img.shape[0]*r))

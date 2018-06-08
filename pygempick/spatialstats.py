@@ -11,7 +11,7 @@ import cv2
 import scipy.misc as misc
 
 #import pygempick module(s)
-import pygempick.core as core
+import pygempick.core as py
 
 def gamma(a,b,r):
     
@@ -81,22 +81,36 @@ def bin2csv(images):
     i = 0  #image counter
     j = 0
     #------------------------
-       
+    #difine filtering paramaters 
+    pclap = 25 #HCLAP anchor value
+    plog  = 20 #HLOG anchor value 
+    
     data = pd.DataFrame()
     #Change picking parameters per test set...
     #p = np.int(input('Center anchor of filter: '))
     minArea = np.int(input('Min Area to Detect: '))
     minCirc = np.float(input('Min Circularity: '))
     minCon = np.float(input('Min Concavity: '))
-    minInert = np.float(input('Min Inertial Ratio: '))
+    minIner = np.float(input('Min Inertial Ratio: '))
     
     for image in images:
         
-        orig_img = cv2.imread(image) ##reads specific test file
-        gray_img = cv2.cvtColor(orig_img, cv2.COLOR_RGB2GRAY)
-        #output = ef.IGEM_filter(p,orig_img, 'no') ##filters image
-        keypoints = core.pick(gray_img, minArea, minCirc, minCon , minInert) ##picks the keypoints
+        orig_img = cv2.imread(image) ##reads specific jpg image from folder with compressed images
         
+        output1 = py.hclap_filt(pclap, orig_img, 'no')
+        output2 = py.hlog_filt(plog, orig_img, 'no')
+        #output1 = py.dog_filt(p,orig_img)
+        #output2 = py.bin_filt(p, orig_img)
+        
+        #image, minArea, minCirc, minConv, minIner, minThres
+        keypoints1 = py.pick(output1, minArea, minCirc, minCon , minIner, 0) 
+        keypoints2 = py.pick(output2, minArea, minCirc, minCon , minIner, 0)
+        
+        #this function removes duplicated detections
+        keypoints1, dup1 = py.key_filt(keypoints1, keypoints2)
+        
+        keypoints = keypoints1 + keypoints2
+       
         data, k = record_kp(i,keypoints,data)
                 
         j += k   
@@ -119,50 +133,41 @@ def bin2df(images):
     '''
     images is a set of images from folder using glob.glob() function,
     records the keypoint positions found in each image and outputs a pandas
-    df with detected keypoint centers in (x,y) pixel coordinates. 
+    dataframe with detected keypoint centers in (x,y) pixel coordinates. S
     
     '''
     
     i = 0  #image counter
     j = 0 #total particles
     #------------------------
-       
+    #difine filtering paramaters 
+    pclap = 25 #HCLAP anchor value
+    plog  = 20 #HLOG anchor value 
+    
     data = pd.DataFrame()
     #Change picking parameters per test set...
     #p = np.int(input('Center anchor of filter: '))
     minArea = np.int(input('Min Area to Detect: '))
     minCirc = np.float(input('Min Circularity: '))
     minCon = np.float(input('Min Concavity: '))
-    minInert = np.float(input('Min Inertial Ratio: '))
+    minIner = np.float(input('Min Inertial Ratio: '))
     
     for image in images:
         
         orig_img = cv2.imread(image) ##reads specific test file
-        gray_img = cv2.cvtColor(orig_img, cv2.COLOR_RGB2GRAY)
-        #output = ef.IGEM_filter(p,orig_img, 'no') ##filters image
-        keypoints = core.pick(gray_img, minArea, minCirc, minCon , minInert) ##picks the keypoints
-                
-        if len(keypoints) > 0:
-            #append x and y coordinates of keypoint center pixels
-            n = len(keypoints) #number of particles in image
-            x = np.zeros(n)
-            y = np.zeros(n)
+        output1 = py.hclap_filt(pclap, orig_img, 'no') #High Contrast Laplace Filtering!
+        output2 = py.hlog_filt(plog, orig_img, 'no')
+
+        #image, minArea, minCirc, minConv, minIner, minThres
+        keypoints1 = py.pick(output1, minArea, minCirc, minCon , minIner, 0) 
+        keypoints2 = py.pick(output2, minArea, minCirc, minCon , minIner, 0)
         
-                
-        k = 0 #particle counter
-                
-        for keypoint in keypoints:
-            ## save the x and y coordinates to a new array...
-                    
-            x[k] = keypoint.pt[0]
-            y[k] = keypoint.pt[1]
-                    
-            k+=1
-            
-             
-            
-            df = pd.DataFrame({'x{}'.format(i): x, 'y{}'.format(i) : y})
-            data = pd.concat([data,df], ignore_index=True, axis=1)
+        #this function removes duplicated detections
+        keypoints1, dup1 = py.key_filt(keypoints1, keypoints2)
+        #combine the two lists of keypoints
+        keypoints = keypoints1 + keypoints2
+        #record the subsequent keypoint centers and update the pandas dataframe
+        data, k = record_kp(i,keypoints,data)
         
         j += k
             
