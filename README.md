@@ -21,10 +21,7 @@ terminal into which you can import all the required modules for your project. Ha
 outlined here: [(install using conda)](https://stackoverflow.com/questions/23119413/how-do-i-install-python-opencv-through-conda).
 Pandas and Numpy can also be installed through any terminal using _**pip install pandas, numpy**_
 
-The project will be updated in the upcoming weeks with tutorials on how 
-to use the functions given within pygempick. This module was built to
-help researchers diagnose pateints with rare protein misfolding diseases 
-like ATTR, AD, FTD and ALS using novel Immunogold diagnostic techniques. 
+The project will be updated in the upcoming weeks with tutorials on how to use the functions given within [pygempick](https://pypi.org/project/pygempick/). This module was built to help researchers that are building therasnotic solutions (therapy based as well as diagnostic innovations) to help pateints with rare protein misfolding diseases like ATTR amyloidosis , [Alzheimer's Disease (AD)](https://www.alz.org/alzheimers_disease_what_is_alzheimers.asp), [Frontotemporal Dementia (FTD)](https://www.theaftd.org/what-is-ftd/disease-overview/) and [Amyotrophic Lateral Sclerosis (also known as ALS or Lou Gehrig's disease)](https://www.als.ca/about-als/what-is-als/) using novel Immunogold diagnostic techniques. 
 
 _**NEW:**_ This update contains supplementary 11 supplementary 
 documents that will help you use the module. We cover image compression, 
@@ -58,11 +55,13 @@ For more information visit the github!
     * a function that takes an original large scale electron 
     micrograph image and compresses it such that 1px = aproximately one nanometer. 
     the exact pixle dimentions for a 3.1x compression are given below.
+    
 
 * __*py.back_eq(image)*__
     
     * background equalization provided by solution presented 
     [here](https://stackoverflow.com/questions/39231534/get-darker-lines-of-an-image-using-opencv)
+    
 
 * __*py.hclap_filt(p,image, noise)*__
     
@@ -70,6 +69,7 @@ For more information visit the github!
     * Applies a [HCLAP Kernel](https://en.wikipedia.org/wiki/Discrete_Laplace_operator) 
     * Takes odd scaling parameter p > 5 with a regular compressed image
     * if noise == 'yes' will add median blur after filter applied.
+    
 
 * __*py.hlog_filt(p, image, noise)*__
     
@@ -80,11 +80,13 @@ For more information visit the github!
     * input image is regular py.compress image output, 
     * if noise == 'yes' will add median blur after filter applied.
     
+    
 * __*py.dog_filt(p, image)*__
     
     * [Difference of Gaussian Filter](http://www.tjscientific.com/2017/01/31/using-python-and-opencv-to-create-a-difference-of-gaussian-filter/). Input is an odd number p to determine size of DOG kernel,
     * input is an py.compress output image, 
     * if noise == 'yes' will add median blur after filter applied.
+    
 
 * __*py.bin_filt(p, image)*__
     
@@ -94,12 +96,14 @@ For more information visit the github!
     
     _**Note:**_ TEM migrograph filtering using simple binary thresholding was first
     completed in 2003 with one of the first gold particle picking algorithms [GoldFinder](https://www.sciencedirect.com/science/article/pii/S104784770200624X).
+    
 
 * _**New: key_filt(keypoints1, keypoints2)**_
     
    * Allows you to scandetected keypoints and eliminate duplicates! Allows you 
     to detect partciles with more than one filter. Returns updated keypoints
     1 with the removed keypoints and number of duplicate(s) detected.
+    
 
 * _**py.pick(image, minAREA, minCIRC, minCONV, minINER, minTHRESH)**_
     
@@ -115,6 +119,7 @@ For more information visit the github!
         2. minCirc = lowest circularity value of a detected gold particle [.78 is square]
         3. minConv = lowest convextivity parameter which is  Convexity is defined as the (Area of the gold particle / Area of it’s convex hull)
         4. minINER = minimum inertial ratio (filters gold particles based on  eliptical properties, 1 is a complete circle)
+        
 
 * _**py.snapshots(folder, keypoints, gray_img, i)**_
     
@@ -137,11 +142,13 @@ For more information visit the github!
     3. images are the number of images in the set - used with n which is number of 
        particles detected in the actual set to calulate the particle density of model 
        set.
+       
 
 * _**mod.imgclass(inv_img)**_
     
     * Uses a compressed grayscale image from [cv2.cvt_color(RGB2GRAY)](https://docs.opencv.org/2.4/modules/imgproc/doc/miscellaneous_transformations.html)
     and returns the intensity histogram and related bins position w/ im_class. 
+    
 
 * _**mod.septest(p,image)**_
     
@@ -192,6 +199,7 @@ For more information visit the github!
     * This is a python based solution to [Philmoneko's Statistical Evaluation of Colocalization Patterns in Immunogold Labeling Experiments](http://nucleus.img.cas.cz/pdf_publications/PHI_Statistical%20evaluation%20of%20Colocalization%20Patterns_01.pdf). 
     The PCF distribution for calculating the colocolization of immunogold particles
      on transmission electorn microgrpahs is represented here.
+     
 
 * _**spa.record_kp(i, keypoints, data)**_
 
@@ -203,12 +211,14 @@ For more information visit the github!
     Run in for loop to add results for each image to dataframe which can be then exported
     into a csv for easy access. (completed in spa.bin2csv )
     
+    
 * _**spa.bin2csv(images)**_
 
    * function takes a list of filelocations from glob.glob (asks for the
      filtering parameters) then it outputs a csv of the x and y coordinates of 
      keypoints for every image in images. (For example, row 1 contains the x 
      coordinate of the keypoints in image 1 and row 2 contains the y coordinates in image 1 ect...)
+     
 
 * _**spa.bin2df(images)**_
     
@@ -216,6 +226,7 @@ For more information visit the github!
     
     * Output records the keypoint positions found in each image and outputs a pandas
       df with detected keypoint centers in (x,y) pixel coordinates. 
+      
 
 * _**spa.csv2pcf(data, dr)**_
 
@@ -226,6 +237,7 @@ For more information visit the github!
       upheld or voided...). Analyzed by bin2csv. Example output provided in docs.
     
     * dr is the donut width as defined by philmonenko et al, 2000
+    
 
 * _**spa.keypoints2pcf(data_set, dr)**_
     
@@ -239,3 +251,4 @@ For more information visit the github!
     * **output:** pcf-dr{}-error.csv - columns dr (sampling radius), pcf 
     ([pair correlation coefficient](https://en.wikipedia.org/wiki/Pearson_correlation_coefficient)),
      dpcf (propogated uncertainty in pcf)
+     
