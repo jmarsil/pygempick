@@ -1,5 +1,7 @@
 # pyGemPick: Open Source Gold Particle Picker for Immunogold Diagnostics
 
+## Official Automatic Open Source Gold Particle Detector of UHN 
+
 ### This is the official installation guide for the PyGemPick module 
 
 PyGemPick is the cummulation of [Joseph Marsilla's](https://github.com/jmarsil) research project 
