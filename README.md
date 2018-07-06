@@ -50,7 +50,7 @@ separation & efficiency tests to test the algorithm's fairness.
 For more information visit the github!
 
 
-## Functions:
+## Functions for EM Migrograph Filtering & Compression:
 
 * __*py.compress(orig-img)*__
     
@@ -105,7 +105,8 @@ For more information visit the github!
    * Allows you to scandetected keypoints and eliminate duplicates! Allows you 
     to detect partciles with more than one filter. Returns updated keypoints
     1 with the removed keypoints and number of duplicate(s) detected.
-    
+
+## Function to Optimize OpenCv's Simple Blob Detector:
 
 * _**py.pick(image, minAREA, minCIRC, minCONV, minINER, minTHRESH)**_
     
@@ -115,13 +116,14 @@ For more information visit the github!
       across 4 main paramaters using OpenCv's simple blob detector.
     * Have to optimize picking for each set separately on a per class or per trial basis. 
     
-    ##### Gold Particle Picking Parameters
+    #### Gold Particle Picking Parameters
     
         1. minArea = lowest area in pixels of a detected gold particle (20 px**2)
         2. minCirc = lowest circularity value of a detected gold particle [.78 is square]
         3. minConv = lowest convextivity parameter which is  Convexity is defined as the (Area of the gold particle / Area of it’s convex hull)
         4. minINER = minimum inertial ratio (filters gold particles based on  eliptical properties, 1 is a complete circle)
-        
+
+## Function to take snapshots of aggregated amyloid morphologies:
 
 * _**py.snapshots(folder, keypoints, gray_img, i)**_
     
@@ -132,7 +134,9 @@ For more information visit the github!
     to take a snapshot of within a 100px radius of that gold particle's position.
     *Researchers use this to analyze the morphological properties of protein aggregates*
      
-    
+
+## Function to Draw Immunogold-like test images using OpenCv:
+
 * _**mod.draw(n, test_number, noise, images)**_
     
    function to draws test micrograph sets that will be used in subsequent 
@@ -144,13 +148,15 @@ For more information visit the github!
     3. images are the number of images in the set - used with n which is number of 
        particles detected in the actual set to calulate the particle density of model 
        set.
-       
+ 
+ ## Function to Classify TEM micrographs based on average gray pixel intensities:
 
 * _**mod.imgclass(inv_img)**_
     
     * Uses a compressed grayscale image from [cv2.cvt_color(RGB2GRAY)](https://docs.opencv.org/2.4/modules/imgproc/doc/miscellaneous_transformations.html)
     and returns the intensity histogram and related bins position w/ im_class. 
-    
+  
+## Functions to test Immunogold Image Preprocessing/Filtering & Picking
 
 * _**mod.septest(p,image)**_
     
@@ -182,6 +188,8 @@ For more information visit the github!
     **Output:** built to produce one graph, with fitted curve for positive control(s).  
     Equation fitted to probability distribution for Complete Spatial Randomness of 
     the distribution of IGEM particles across EM micrographs.
+
+## Functions to Statistically Model Spatial-Point Distributions and Correlation Statistics of Immunolabeled Proteins 
 
 * __*spa.gamma(a,b,r)*__
 
