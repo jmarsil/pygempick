@@ -1,6 +1,6 @@
 # pyGemPick: Open Source Gold Particle Picker for Immunogold Diagnostics
 
-## Official Automatic Open Source Immunogold Detector of the [Chakrab Lab](http://medbio.utoronto.ca/faculty/chakrabartty.html)
+## Official Python Based Automatic Immunogold Detector of the [Chakrab Lab](http://medbio.utoronto.ca/faculty/chakrabartty.html)
 
 ### This is the official installation guide for the PyGemPick module 
 
