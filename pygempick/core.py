@@ -8,7 +8,7 @@ Created on Wed May  9 15:06:15 2018
 import numpy as np
 import cv2
 
-def compress(image):
+def file2compress(image):
     '''
     * Takes a image file location, reads the image and 
       compresses it 3.3 times in our case. 
@@ -19,6 +19,24 @@ def compress(image):
     '''
     orig_img = cv2.imread(image) ##reads specific test file image
     
+    r = 1018/orig_img.shape[1] ##correct aspect ratio of image to prevent distortion
+    dim = (1018, int(orig_img.shape[0]*r))
+    
+    resized_img = cv2.resize(orig_img, dim, interpolation = cv2.INTER_AREA)
+    
+    gray_img = cv2.cvtColor(resized_img, cv2.COLOR_RGB2GRAY)
+    
+    return gray_img
+
+def img2compress(orig_img):
+    '''
+    * Takes a image file location, reads the image and 
+      compresses it 3.3 times in our case. 
+    * Images are outputed originally as large 9MB images...
+    
+    (That much reolution is unecessary when determining positioning of gold 
+    particles. )
+    '''
     r = 1018/orig_img.shape[1] ##correct aspect ratio of image to prevent distortion
     dim = (1018, int(orig_img.shape[0]*r))
     

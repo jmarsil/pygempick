@@ -33,6 +33,7 @@ Taken From 2000, Philmonenko:
 data_set = glob.glob('/home/joseph/Documents/PHY479/Data/anto/*.csv')
 #data_set = glob.glob('/home/joseph/Documents/V30M-Keypoints/*.csv')
 dr = 5
+maxr = 200
 
 save = pd.DataFrame()
 
@@ -43,7 +44,7 @@ for data in data_set:
     
     print(data)
     
-    k, pcf, dk, dpcf = spa.csv2pcf(data, dr)
+    k, pcf, dk, dpcf = spa.csv2pcf(data, dr, maxr)
     
     #plot the Classical K function 
     #Input name of specific data set recorded...
@@ -58,7 +59,7 @@ for data in data_set:
         plt.title('K Function of V30M Micrographs')
         
         #plot at functions midpoint...
-        plt.plot(np.linspace(1,101,len(k)), k/sum(k), label='Classical K function for {}'.format(name))
+        plt.plot(np.linspace(1,201,len(k)), k/sum(k), label='Classical K function for {}'.format(name))
         #if len(k) > 2:
         #    plt.errorbar(np.arange(1,101,2), k/sum(k) , yerr=stdk, fmt='o')
         plt.legend(loc='best')
@@ -69,7 +70,7 @@ for data in data_set:
     
         plt.figure(2)
         plt.title('PCF of V30M Micrographs')
-        plt.plot(np.linspace(1,101, len(pcf)), pcf/sum(pcf), label='Pair Correlation Function {}'.format(name))
+        plt.plot(np.linspace(1,201, len(pcf)), pcf/sum(pcf), label='Pair Correlation Function {}'.format(name))
         #if len(k) > 2:
         #    plt.errorbar(np.arange(1,101,2), pcf/sum(pcf) , yerr=stdpcf, fmt='o')
         plt.legend(loc='best')
@@ -82,12 +83,12 @@ for data in data_set:
     
     dnpcf = npcf*np.sqrt((np.array(dpcf)/pcf)**2 + (sumd/sum(pcf))**2)
     
-    df = pd.DataFrame({'dr-{}'.format(name): np.linspace(1,101, len(pcf)), 'PCF-{}'.format(name): npcf, 'dpcf-{}'.format(name): dnpcf})
+    df = pd.DataFrame({'dr-{}'.format(name): np.linspace(1,201, len(pcf)), 'PCF-{}'.format(name): npcf, 'dpcf-{}'.format(name): dnpcf})
     
     save = pd.concat([save,df], ignore_index=False, axis=1)
     
     print(npcf,dnpcf)
 
-save.to_csv('pcf-dr{}-error.csv'.format(dr),index=False)
+save.to_csv('pcf-dr{}-error2.csv'.format(dr),index=False)
 
     

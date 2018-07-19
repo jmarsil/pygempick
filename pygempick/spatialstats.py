@@ -38,6 +38,19 @@ def pcf(r, N, p0, p1):
     
     return 1/misc.factorial(p1)*(p0**N)*(r**(p1))*np.exp(-p0*r)
 
+def pcf2d(x,y, N, p0, p1):
+    
+    '''
+    2d version - r is the radius of the donut taken with bin width dr. N is the degree
+    PCF (Pair Correlation Function) is the probability distribution of a CSR 
+    related process that we will used to fit our normalized version of 
+    Philmoneko's PCF diostributtion for calculating colocolization of immunogold
+    particles on microgrpahs.
+    
+    '''
+    r = np.sqrt(x**2+y**2)
+    return 1/misc.factorial(p1)*(p0**N)*(r**(p1))*np.exp(-p0*r)
+
 def record_kp(i, keypoints, data):
     '''
     i is the image number counter
@@ -46,28 +59,33 @@ def record_kp(i, keypoints, data):
     
     data is an empty pandas dataframe. 
     
-    '''
-    
+    ''' 
+    #i is the image number
     if len(keypoints) > 0:
-            #append x and y coordinates of keypoint center pixels
-            n = len(keypoints) #number of particles in image
-            x = np.zeros(n)
-            y = np.zeros(n)
+        #append x and y coordinates of keypoint center pixels
+        n = len(keypoints) #number of particles in image
+        x = np.zeros(n)
+        y = np.zeros(n)
+            
+        k = 0 #k is the keypoint counter 
         
-    k = 0 #k is the keypoint counter 
+        print(n)
         
-    for keypoint in keypoints:
+        for keypoint in keypoints:
     ## save the x and y coordinates to a new array...
     
-        x[k] = keypoint.pt[0]
-        y[k] = keypoint.pt[1]
-                        
-        k+=1
-                    
+            x[k] = np.float(keypoint.pt[0])
+            y[k] = np.float(keypoint.pt[1])
+                            
+            k+=1
+
         df = pd.DataFrame({'x{}'.format(i): x, 'y{}'.format(i) : y})
         data = pd.concat([data,df], ignore_index=True, axis=1)
+        return data, k
     
-    return data, k
+    else:
+        return data, 0
+    
 
 def bin2csv(images):
     
@@ -110,6 +128,8 @@ def bin2csv(images):
         keypoints1, dup1 = py.key_filt(keypoints1, keypoints2)
         
         keypoints = keypoints1 + keypoints2
+        
+        print(len(keypoints))
        
         data, k = record_kp(i,keypoints,data)
                 
@@ -139,6 +159,7 @@ def bin2df(images):
     
     i = 0  #image counter
     j = 0 #total particles
+    dup =0
     #------------------------
     #difine filtering paramaters 
     pclap = 25 #HCLAP anchor value
@@ -164,18 +185,21 @@ def bin2df(images):
         
         #this function removes duplicated detections
         keypoints1, dup1 = py.key_filt(keypoints1, keypoints2)
+        
         #combine the two lists of keypoints
         keypoints = keypoints1 + keypoints2
         #record the subsequent keypoint centers and update the pandas dataframe
         data, k = record_kp(i,keypoints,data)
         
-        j += k
-            
-        i+=1
+        dup+=dup1 #duplicate counter
+        j += k #particle counter
+        i+=1 #image counter
+        
+    print('{} particles in {} images with {} duplicates.'.format(j,i,dup))
 
     return data, j #returns data as df and total particles accounted...
 
-def csv2pcf(data, dr):
+def csv2pcf(data, dr, max_radius):
     
     '''
     Takes data from csv produced by bin2csv() and outputs non-normalized k 
@@ -198,7 +222,7 @@ def csv2pcf(data, dr):
     
     #explain why this function is required for statistical detection of immunogold clusters in the data...
     
-    l = (1/N)*ni #average density of particles lables across this test set of images
+    l = (1/(N))*ni #average density of particles lables across this test set of images (can calculate without area - scaling reasons)
     dni = 50*ni/1000. #false negatives missed by picker per 1000
     
     #correct the boundary effect of image by using the geometric covariogram of the
@@ -209,7 +233,7 @@ def csv2pcf(data, dr):
     pcf = []
     dpcf = []
     
-    for r in range(0,100,dr): ##analyze the clustering in a given region between two circles. 
+    for r in range(0, max_radius ,dr): ##analyze the clustering in a given region between two circles. 
         
         kc = 0
         ki = 0

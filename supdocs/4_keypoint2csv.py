@@ -31,7 +31,7 @@ a poisson process equal to (np.pi*r**2). This is the PCF
 import glob
 import pygempick.spatialstats as spa
 
-images = glob.glob('/home/joseph/Documents/pygempick/samples/compressed/*.jpg')
+images = glob.glob('/media/joseph/Joe\'s USB/ALL - V30M/V30M-ANTITTR/LAP-V30M-Antittr/picked/*.jpg')
 
 #use these parameters >> keypoints1 = py.pick(output1, 37, .71, .5 , .5, 0) 
 

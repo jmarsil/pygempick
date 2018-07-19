@@ -29,9 +29,26 @@ find a particle
 # missing a factorial?? --- // figure out what that is 
 
 '''
+#modified for new fitpcf function!
+'''
+determine guess filtering parameters
+pcfp1 = np.array([100.,1.,1.]) - this is to fit the positive control of the healthy sample
+pcfp2 = np.array([10.,1., 1.]) - this is to fit the positive control of the diseased sample
 
+'''
+import numpy as np
+from pylab import meshgrid,cm,imshow,contour,clabel,colorbar,axis,title,show
 
-data1 = pd.read_csv('/home/joseph/Documents/PHY479/pcf-dr5-error.csv',\
+# the function that I'm going to plot
+
+data1 = pd.read_csv('/home/joseph/Documents/pygempick/supdocs/pcf-dr5-error2.csv',\
                     header=None, skiprows=1)
 
-mod.fitpcf(data1)
+popt, pcov = mod.fitpcf(data1, 10., 1., 1.)
+
+x = np.arange(0,210,1)
+y = np.arange(0,210,1)
+
+spa.pcf(np.arange(0,210,1), popt1[0], popt1[1], popt1[2])
+
+

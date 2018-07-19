@@ -298,7 +298,7 @@ def septest2(p, image, hlogkey):
     
     return count, duplicates
 
-def fitpcf(data):
+def fitpcfs(data):
     
     '''
     data1 = pd.read_csv('/home/joseph/Documents/PHY479/pcf-dr5-error.csv', header=None, skiprows=1)
@@ -361,4 +361,36 @@ def fitpcf(data):
     plt.ylabel('P(r)')
 
 
+def fitpcf(data, N, p0, p1):
+    
+    data = pd.DataFrame(data)
+    data = data.fillna(0)
+
+    #determine guess filtering parameters
+    pcfp1 = np.array([N,p0,p1])
+    x = data[2].values
+    y = data[0].values
+    dy = data[1].values
+    
+    popt1, pcov1 = opt.curve_fit(spa.pcf , x, y,  p0 = pcfp1)
+    popt1 = np.around(popt1, decimals=2)
+    
+    plt.figure()
+    plt.title('Probability of Gold Particle Colocolization on TTR micrographs' )
+    #CSR of CD1 Micgrgrap set 
+    plt.plot(x,y,'xr') #keypoints of CD1 micrographs
+    plt.plot(np.arange(0,210,1), spa.pcf(np.arange(0,210,1), popt1[0], popt1[1], popt1[2]),
+                       'g-', label='V30M CSR, N = {} +/- {}, L = {} +/- {}'.format(popt1[0],
+                                                 np.around(np.sqrt(pcov1[0,0]), decimals=3),
+                                                 popt1[1], np.around(np.sqrt(pcov1[1,1]), decimals=3))) 
+    plt.errorbar(x, y, yerr=dy, fmt='og')
+    plt.legend(loc='best')
+    plt.grid(True)
+    plt.xlabel('Radius (r)')
+    #Probability Nth point at distance r 
+    plt.ylabel('P(r)')
+    
+    plt.show()
+    
+    return popt1, np.around(np.sqrt(pcov1), decimals=3)
     
