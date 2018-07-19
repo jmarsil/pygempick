@@ -17,10 +17,10 @@ pcfp2 = np.array([10.,1., 1.]) - this is to fit the positive control of the dise
 
 # the function that I'm going to plot
 
-data1 = pd.read_csv('/home/joseph/Documents/pygempick/supdocs/pcf-dr5-error3.csv',\
+data1 = pd.read_csv('/home/joseph/Documents/pygempick/supdocs/TEST-pcf-dr5-error2.csv',\
                     header=None, skiprows=1)
-
-popt, pcov = mod.fitpcf(data1, 10., 1., 1.)
+# 10., 1., 1.
+popt, pcov = mod.fitpcf(data1, 100., 1., 1.)
 
 plt.figure()
 x = np.arange(-41,41,.25)

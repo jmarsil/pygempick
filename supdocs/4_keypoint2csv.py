@@ -31,12 +31,12 @@ a poisson process equal to (np.pi*r**2). This is the PCF
 import glob
 import pygempick.spatialstats as spa
 
-images = glob.glob('/media/joseph/Joe\'s USB/ALL - V30M/V30M-ANTITTR/LAP-V30M-Antittr/picked/*.jpg')
+images = glob.glob('/home/joseph/Desktop/V30M-TEST/*.jpg')
 
 #use these parameters >> keypoints1 = py.pick(output1, 37, .71, .5 , .5, 0) 
 
 N = len(images)
-data, blobs = spa.bin2df(images)
+data, blobs = spa.bin2df(images, 2)
 file = input("Name your file")
 data.to_csv('{}'.format(file),index=False)
 print('Number of Images is: {}.'.format(N))

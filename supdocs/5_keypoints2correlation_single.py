@@ -30,10 +30,11 @@ Taken From 2000, Philmonenko:
     
 '''
 ##
-data = '/home/joseph/Documents/pygempick/supdocs/v30m_anti_july418_31_79_60_60_1528.csv'
+data = '/home/joseph/Documents/pygempick/supdocs/v30m_test_1627_175.csv' #csv recording detected keypoints from modeled function
+#data = '/home/joseph/Documents/pygempick/supdocs/v30m_anti_july418_31_79_60_60_1528.csv' #real V30M dataset
 #data_set = glob.glob('/home/joseph/Documents/V30M-Keypoints/*.csv')
 dr = 5
-maxr = 200
+maxr = 300
 save = pd.DataFrame()
 #if you have multiple csv folders that you would like CSV data calculated 
 #for, program was made to track data from more than one CSV folder
@@ -85,6 +86,6 @@ save = pd.concat([save,df], ignore_index=False, axis=1)
 
 print(npcf,dnpcf)
 
-save.to_csv('pcf-dr{}-error3.csv'.format(dr),index=False)
+save.to_csv('TEST-pcf-dr{}-error2.csv'.format(dr),index=False)
 
     
